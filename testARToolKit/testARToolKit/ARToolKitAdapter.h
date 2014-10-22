@@ -8,6 +8,7 @@
 #pragma comment(lib,"libARvideod.lib")
 #pragma comment(linker,"/NODEFAULTLIB:libcmtd.lib")
 #else
+//#pragma comment(lib, "glut32.lib")
 #pragma comment(lib,"libAR.lib")
 #pragma comment(lib,"libARgsub.lib")
 #pragma comment(lib,"libARgsub_lite.lib")
@@ -17,11 +18,17 @@
 #endif
 
 #include <Windows.h>
-#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+//#include <iostream>
 
-#include <GL\GL.h>
-#include <GL\GLU.h>
-#include <GL\glut.h>
+//#include <GL\GL.h>
+//#include <GL\GLU.h>
+#ifdef __APPLE__
+#  include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
 
 #include <AR\ar.h>				//	ARToolKitの基本サブルーチン
 #include <AR\arMulti.h>			//	マルチマーカー用
