@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testARToolKit", "testARToolKit\testARToolKit.vcxproj", "{7F9D3589-B56A-42AA-B281-1E94DB5B639C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ARTKwithOpenCV", "ARTKwithOpenCV\ARTKwithOpenCV.vcxproj", "{808624B3-D2DB-4E5A-B1D4-E7364C89DECF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -15,6 +17,10 @@ Global
 		{7F9D3589-B56A-42AA-B281-1E94DB5B639C}.Debug|Win32.Build.0 = Debug|Win32
 		{7F9D3589-B56A-42AA-B281-1E94DB5B639C}.Release|Win32.ActiveCfg = Release|Win32
 		{7F9D3589-B56A-42AA-B281-1E94DB5B639C}.Release|Win32.Build.0 = Release|Win32
+		{808624B3-D2DB-4E5A-B1D4-E7364C89DECF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{808624B3-D2DB-4E5A-B1D4-E7364C89DECF}.Debug|Win32.Build.0 = Debug|Win32
+		{808624B3-D2DB-4E5A-B1D4-E7364C89DECF}.Release|Win32.ActiveCfg = Release|Win32
+		{808624B3-D2DB-4E5A-B1D4-E7364C89DECF}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

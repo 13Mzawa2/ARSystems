@@ -2,7 +2,7 @@
 
 // グローバル変数
 /* カメラ構成 */
-char *vconf_name = "Data/WDM_camera_flipV.xml";	// ビデオデバイスの設定ファイル
+char *vconf_name = "Data/WDM_camera_flipV_WebCam.xml";	// ビデオデバイスの設定ファイル
 int  xsize;											// ウィンドウサイズ
 int  ysize;											// ウィンドウサイズ
 int  thresh = 100;									// 2値化の閾値
@@ -17,7 +17,7 @@ char   *patt_name = "Data/patt.hiro";				// パターンファイル
 int    patt_id;										// パターンのID
 double patt_trans[3][4];							// 座標変換行列
 double patt_center[2] = { 0.0, 0.0 };				// パターンの中心座標
-double patt_width = 80.0;						// パターンのサイズ（単位：ｍｍ）
+double patt_width = 80.0;						// パターンのサイズ（単位：ｍｍ, マーカーの一辺の長さ）
 
 // プロトタイプ宣言
 void Init(void);
