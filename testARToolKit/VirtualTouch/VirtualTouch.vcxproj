@@ -44,8 +44,10 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\opencv\build\include;C:\ARToolKit\OpenVRML\include;C:\ARToolKit\include;C:\Users\new user\Documents\Visual Studio 2013\Projects\ARSystems\testARToolKit\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\opencv\build\x86\vc11\lib;C:\opencv\build\x86\vc11\staticlib;C:\ARToolKit\OpenVRML\lib;C:\ARToolKit\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\opencv\build\include;C:\ARToolKit\OpenVRML\include;C:\ARToolKit\include;..\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\opencv\build\x86\vc12\lib;C:\opencv\build\x86\vc12\staticlib;C:\ARToolKit\OpenVRML\lib;C:\ARToolKit\lib;$(LibraryPath)</LibraryPath>
+    <SourcePath>$(SourcePath)</SourcePath>
+    <ReferencePath>$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>

@@ -63,7 +63,7 @@ System::Void MainForm::終了ToolStripMenuItem_Click(System::Object^  sender, Syst
 //=============================================================
 System::Void MainForm::入力ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
 {
-	VideoCapture cap(0);
+	VideoCapture cap(1);
 	//	カメラの存在をチェック
 	if (!cap.isOpened())
 	{
@@ -73,12 +73,18 @@ System::Void MainForm::入力ToolStripMenuItem_Click(System::Object^  sender, Syst
 	cap.set(CV_CAP_PROP_FRAME_WIDTH, 640);
 	cap.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
 
+	Threading::Thread::Sleep(1000);
+
 	Mat				cvImg, frame;			//	OpenCV側の画像保管バッファ
 	ARUint8			*arImg;					//	ARToolKit側の画像保管バッファ
 	ARMarkerInfo	*markerInfo;			//	ARTKのマーカー情報(複数の場合は配列になる)
 	static bool		isFirstDetect = true;
 	cap >> frame;
-	arSetup(frame);
+	if (!arSetup(frame))
+	{
+		MessageBox::Show("データファイルが見つかりませんでした");
+		return;
+	}
 	camIsOpen = true;
 	camStop = false;
 
@@ -148,6 +154,10 @@ System::Void MainForm::入力ToolStripMenuItem_Click(System::Object^  sender, Syst
 			}
 			arEndObjectRender();
 		}
+		else
+		{
+			isFirstDetect = false;
+		}
 		readImageBuffer(cvImg);					//	OpenGLバッファからレンダリング後の画像を読み取る
 		if (!camStop)	winShowImage(pictureBox1, cvImg);
 		Application::DoEvents();
@@ -180,6 +190,12 @@ System::Void MainForm::スナップを保存ToolStripMenuItem1_Click(System::Object^  s
 	if (saveFileDialog1->ShowDialog() != Windows::Forms::DialogResult::OK)
 		return;
 	pictureBox1->Image->Save(saveFileDialog1->FileName);
+
+	if (一時停止ToolStripMenuItem->Text == "一時停止")
+	{
+		camStop = false;
+	}
+	
 }
 System::Void MainForm::終了ToolStripMenuItem1_Click(System::Object^  sender, System::EventArgs^  e)
 {

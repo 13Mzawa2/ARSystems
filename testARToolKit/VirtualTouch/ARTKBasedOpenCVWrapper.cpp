@@ -7,7 +7,7 @@ static char	*cparamName = "Data/camera_para.dat";		// カメラパラメータファイル
 ARParam	cparam;										// カメラパラメータ
 
 //	ARTKの初期化
-void arSetup(Mat& camImg)
+bool arSetup(Mat& camImg)
 {
 	ARParam wparam;		// カメラパラメータ
 	int xsize, ysize;
@@ -24,7 +24,7 @@ void arSetup(Mat& camImg)
 	if (arParamLoad(cparamName, 1, &wparam) < 0)
 	{
 //		printf("カメラパラメータの読み込みに失敗しました\n");
-		exit(0);
+		return false;
 	}
 
 	// カメラパラメータのサイズ調整
@@ -38,11 +38,12 @@ void arSetup(Mat& camImg)
 	if ((patt.id = arLoadPatt(patt.name)) < 0)
 	{
 //		printf("パターンファイルの読み込みに失敗しました\n");
-		exit(0);
+		return false;
 	}
 	// gsubライブラリの初期化
 	argInit(&cparam, 1.0, 0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT);
+	return true;
 }
 
 //	AR描画開始コマンド
@@ -107,6 +108,7 @@ void readImageBuffer(Mat& cvImg)
 		GL_RGBA,
 		GL_UNSIGNED_BYTE,
 		cvImg.data);							// RGBAで取得
+	//	以下は使用するカメラによって適宜変える
 	cvtColor(cvImg, cvImg, CV_RGBA2BGR);		// OpenCVのBGR並びに変換
 	flip(cvImg, cvImg, 0);						// OpenCVに合わせて上下反転
 }

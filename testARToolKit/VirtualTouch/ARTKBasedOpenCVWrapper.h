@@ -7,7 +7,7 @@
 extern ARPattern patt;
 extern ARParam	cparam;
 
-void arSetup(Mat&);
+bool arSetup(Mat&);
 void arBeginObjectRender(void);
 void arEndObjectRender(void);
 void cvtImageCV2AR(Mat&, ARUint8*);
