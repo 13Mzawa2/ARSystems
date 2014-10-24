@@ -21,6 +21,8 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <CLRSupport>true</CLRSupport>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -42,6 +44,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\opencv\build\include;C:\ARToolKit\OpenVRML\include;C:\ARToolKit\include;C:\Users\new user\Documents\Visual Studio 2013\Projects\ARSystems\testARToolKit\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\opencv\build\x86\vc11\lib;C:\opencv\build\x86\vc11\staticlib;C:\ARToolKit\OpenVRML\lib;C:\ARToolKit\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -61,6 +65,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EntryPointSymbol>main</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -90,6 +95,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ARTKBasedOpenCVWrapper.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainForm.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</CompileAsManaged>
@@ -111,6 +117,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\ARToolKitAdapter.h" />
     <ClInclude Include="..\include\OpenCVAdapter.h" />
+    <ClInclude Include="ARTKBasedOpenCVWrapper.h" />
     <ClInclude Include="MainForm.h">
       <FileType>CppForm</FileType>
     </ClInclude>

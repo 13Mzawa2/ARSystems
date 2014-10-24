@@ -38,3 +38,13 @@
 #include <AR\matrix.h>			//	行列演算ルーチン
 #include <AR\param.h>			//	ARToolKitのグローバルパラメータ
 #include <AR\video.h>			//	ビデオデバイスサブルーチン
+
+//	ARマーカーのパターンファイル
+typedef struct
+{
+	char   *name;				// パターンファイル
+	int    id;					// パターンのID
+	double trans[3][4];			// 座標変換行列
+	double center[2];			// パターンの中心座標
+	double width;				// パターンのサイズ（単位：mm マーカーの一辺の長さ）
+}ARPattern;

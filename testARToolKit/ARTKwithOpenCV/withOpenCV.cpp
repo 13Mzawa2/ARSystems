@@ -7,22 +7,16 @@ void drawObject(void);
 void setupLighting(void);
 void setupMaterial(void);
 
+static bool		isFirstDetect = true;
+ARPattern patt;
+
 /* カメラパラメータ */
-char *cparamName = "Data/camera_para.dat";			// カメラパラメータファイル
-ARParam cparam;										// カメラパラメータ
-
-/* パターンファイル */
-char   *pattName = "Data/patt.hiro";				// パターンファイル
-int    pattId;										// パターンのID
-double pattTrans[3][4];								// 座標変換行列
-double pattCenter[2] = { 0.0, 0.0 };				// パターンの中心座標
-double pattWidth = 80.0;							// パターンのサイズ（単位：ｍｍ, マーカーの一辺の長さ）
-
-static bool		 isFirstDetect = true;
+char	*cparamName = "Data/camera_para.dat";		// カメラパラメータファイル
+ARParam	cparam;
 
 int main(int argc, char** argv)
 {
-	VideoCapture cap(1);
+	VideoCapture cap(0);
 	cap.set(CV_CAP_PROP_FRAME_WIDTH, 640);
 	cap.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
 	if (!cap.isOpened()) return -1;
@@ -53,7 +47,7 @@ int main(int argc, char** argv)
 		int k = -1;
 		for (int j = 0; j < markerNum; j++)
 		{
-			if (pattId == markerInfo[j].id)
+			if (patt.id == markerInfo[j].id)
 			{
 				if (k == -1) k = j;
 				else if (markerInfo[k].cf < markerInfo[j].cf) k = j;
@@ -63,9 +57,9 @@ int main(int argc, char** argv)
 		{
 			// マーカの位置・姿勢（座標変換行列）の計算
 			if (isFirstDetect)
-				arGetTransMat(&markerInfo[k], pattCenter, pattWidth, pattTrans);
+				arGetTransMat(&markerInfo[k], patt.center, patt.width, patt.trans);
 			else
-				arGetTransMatCont(&markerInfo[k], pattTrans, pattCenter, pattWidth, pattTrans);
+				arGetTransMatCont(&markerInfo[k], patt.trans, patt.center, patt.width, patt.trans);
 			
 			isFirstDetect = false;
 			// 3Dオブジェクトのバッファへの描画
@@ -137,7 +131,7 @@ void drawObject(void)
 	glDepthFunc(GL_LEQUAL);			// デプステスト
 
 	// 変換行列の適用
-	argConvGlpara(pattTrans, glParam);	// ARToolKitからOpenGLの行列に変換
+	argConvGlpara(patt.trans, glParam);	// ARToolKitからOpenGLの行列に変換
 	glMatrixMode(GL_MODELVIEW);			// 行列変換モード・モデルビュー
 	glLoadMatrixd(glParam);				// 読み込む行列を指定
 
@@ -180,6 +174,11 @@ void arSetup(Mat& camImg)
 	ARParam wparam;		// カメラパラメータ
 	int xsize, ysize;
 
+	//	ARパターンのセットアップ
+	patt.name = "Data/patt.hiro";
+	patt.center[0] = 0.0; patt.center[1] = 0.0;
+	patt.width = 80.0;
+
 	// ウィンドウサイズの取得
 	xsize = camImg.cols; ysize = camImg.rows;
 
@@ -198,7 +197,7 @@ void arSetup(Mat& camImg)
 	arParamDisp(&cparam);
 
 	// パターンファイルのロード
-	if ((pattId = arLoadPatt(pattName)) < 0)
+	if ((patt.id = arLoadPatt(patt.name)) < 0)
 	{
 		printf("パターンファイルの読み込みに失敗しました\n");
 		exit(0);
