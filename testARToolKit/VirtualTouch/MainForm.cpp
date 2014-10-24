@@ -52,6 +52,13 @@ System::Void winShowImage(System::Windows::Forms::PictureBox^ picturebox, cv::Ma
 }
 
 //=============================================================
+//		ファイル
+//=============================================================
+System::Void MainForm::終了ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
+{
+	this->Close();
+}
+//=============================================================
 //		コントロール->カメラ
 //=============================================================
 System::Void MainForm::入力ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)

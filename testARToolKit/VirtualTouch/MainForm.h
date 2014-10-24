@@ -166,8 +166,9 @@ namespace VirtualTouch {
 			// 終了ToolStripMenuItem
 			// 
 			this->終了ToolStripMenuItem->Name = L"終了ToolStripMenuItem";
-			this->終了ToolStripMenuItem->Size = System::Drawing::Size(142, 22);
+			this->終了ToolStripMenuItem->Size = System::Drawing::Size(152, 22);
 			this->終了ToolStripMenuItem->Text = L"終了";
+			this->終了ToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::終了ToolStripMenuItem_Click);
 			// 
 			// 編集ToolStripMenuItem
 			// 
@@ -411,9 +412,12 @@ namespace VirtualTouch {
 		System::Void MainForm_Load(System::Object^  sender, System::EventArgs^  e);
 		System::Void MainForm_FormClosing(System::Object^  sender, System::Windows::Forms::FormClosingEventArgs^  e);
 		System::Void MainForm_FormClosed(System::Object^  sender, System::Windows::Forms::FormClosedEventArgs^  e);
+		//	ファイル
+		System::Void 終了ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
 		//	ウインドウ
 		System::Void x05ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
 		System::Void x10ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
+		//	コントロール->カメラ
 		System::Void 入力ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
 		System::Void 一時停止ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
 		System::Void 終了ToolStripMenuItem1_Click(System::Object^  sender, System::EventArgs^  e);
