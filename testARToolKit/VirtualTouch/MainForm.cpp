@@ -2,9 +2,24 @@
 
 #define WINDOW_W	640
 #define WINDOW_H	480
+#define VIB_NUM		5
 
 using namespace VirtualTouch;
 using namespace System::Runtime::InteropServices;
+
+//----------------------
+//	必要なグローバル変数
+//----------------------
+bool	camStop = true;			//	一時停止中にtrue
+bool	camIsOpen = false;		//	カメラが開いている状態でtrue
+Mat		depthMap;				//	取得したデプスマップ
+static cv::Point vibrator[VIB_NUM]= {
+	cv::Point(380, 270),			//	親指
+	cv::Point(350, 220),			//	人差指
+	cv::Point(320, 200),			//	中指
+	cv::Point(290, 210),			//	薬指
+	cv::Point(260, 240)				//	小指
+};
 
 //=============================================================
 //		メインフォームの動作
@@ -38,7 +53,7 @@ System::Void winShowImage(System::Windows::Forms::PictureBox^ picturebox, cv::Ma
 	IntPtr ip(cvTemp.ptr());							// OpenCVの画像バッファをintポインタに変換
 
 	picturebox->Image = bmp;
-	Graphics^g = Graphics::FromImage(picturebox->Image);		// グラフィックオブジェクト作成 
+	Graphics^g = Graphics::FromImage(picturebox->Image);		//	pictureboxのImageからグラフィックオブジェクト作成 
 
 	bmp = gcnew Bitmap(cvTemp.cols, cvTemp.rows, cvTemp.step, System::Drawing::Imaging::PixelFormat::Format24bppRgb, ip);
 
@@ -91,6 +106,7 @@ System::Void MainForm::入力ToolStripMenuItem_Click(System::Object^  sender, Syst
 	while (camIsOpen)
 	{
 		cap >> frame;
+		//cvtImageCV2AR(frame, arImg);
 		cvtColor(frame, cvImg, CV_BGR2BGRA);	//	ARTKに渡すための変換
 		arImg = (ARUint8*)(cvImg.data);			//	ARTKに画像データのみ渡す
 		// カメラ画像のバッファへの描画
@@ -148,17 +164,36 @@ System::Void MainForm::入力ToolStripMenuItem_Click(System::Object^  sender, Syst
 				glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
 
 				// 3Dオブジェクトの描画
+				glPushMatrix();					//	カレント変換行列を保存
 				glTranslatef(0.0, 0.0, 20.0);	// マーカの上に載せるためにZ方向（マーカ上方）に20.0[mm]移動
 				glRotated(90.0, 1.0, 0.0, 0.0);
 				glutSolidTeapot(50.0);			// ソリッドキューブを描画（1辺のサイズ50[mm]）
+				glPopMatrix();					//	カレント変換行列を呼び出し
+
+				//	デプスマップ取得
+				cvtColor(frame, depthMap, CV_BGR2GRAY);
+				getDepthMap(depthMap);
 			}
 			arEndObjectRender();
 		}
 		else
 		{
 			isFirstDetect = false;
+			cvtColor(frame, depthMap, CV_BGR2GRAY);
+			depthMap.convertTo(depthMap, CV_32F);
+			depthMap = 0.0;
 		}
 		readImageBuffer(cvImg);					//	OpenGLバッファからレンダリング後の画像を読み取る
+
+		//	振動子位置の描画
+		for (int i = 0; i < VIB_NUM; i++)
+		{
+			float depth = depthMap.at<float>(vibrator[i]);
+			char s[256];
+			sprintf_s(s, 256, "%.2f", depth);
+			putText(cvImg, s, cv::Point(10, 18 * (i+1)), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 255, 255), 1, CV_AA);
+			circle(cvImg, vibrator[i], 8, Scalar(0, 0, 255), 2, CV_AA);
+		}
 		if (!camStop)	winShowImage(pictureBox1, cvImg);
 		Application::DoEvents();
 	}
@@ -202,7 +237,6 @@ System::Void MainForm::終了ToolStripMenuItem1_Click(System::Object^  sender, Sys
 	//	完全に処理を止める
 	camStop = true;
 	camIsOpen = false;
-	pictureBox1->BackColor = Color::DarkGray;
 }
 
 //=============================================================

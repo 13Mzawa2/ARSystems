@@ -78,9 +78,7 @@ namespace VirtualTouch {
 		/// <summary>
 		/// 必要なデザイナー変数です。
 		/// </summary>
-		bool	camIsOpen = false;		//	カメラが開いている状態でtrue
 	private: System::Windows::Forms::SaveFileDialog^  saveFileDialog1;
-			 bool	camStop = true;			//	一時停止中にtrue
 
 #pragma region Windows Form Designer generated code
 		/// <summary>
@@ -428,5 +426,13 @@ namespace VirtualTouch {
 //#include "ARToolKitAdapter.h"
 //#include "OpenCVAdapter.h"
 #include "ARTKBasedOpenCVWrapper.h"
+
+//----------------------
+//	必要なグローバル変数
+//----------------------
+extern bool		camStop;		//	一時停止中にtrue
+extern bool		camIsOpen;		//	カメラが開いている状態でtrue
+extern cv::Mat	depthMap;		//	取得したデプスマップ
+
 
 System::Void winShowImage(System::Windows::Forms::PictureBox^ picturebox, cv::Mat img);

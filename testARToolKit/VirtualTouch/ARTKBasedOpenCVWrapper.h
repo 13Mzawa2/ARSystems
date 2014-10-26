@@ -13,6 +13,7 @@ void arEndObjectRender(void);
 void cvtImageCV2AR(Mat&, ARUint8*);
 void cvtImageAR2CV(ARUint8*, Mat&);
 void readImageBuffer(Mat&);
+void getDepthMap(Mat&);
 int thresholdOtsu(Mat&);
 
 #endif //_ARTKBasedOpenCVWrapper_H

@@ -98,7 +98,8 @@ void cvtImageAR2CV(ARUint8* arImg, Mat& cvImg)
 	memcpy(cvImg.data, arImg, cvImg.rows * cvImg.cols * cvImg.channels());
 }
 
-// OpenGLバッファの内容を画像として取得
+//	OpenGLバッファの内容をBGR画像として取得
+//	引数cvImgはカメラ画像と同じ大きさの4ch画像（CV_8UC4）を渡す
 void readImageBuffer(Mat& cvImg)
 {
 	glReadBuffer(GL_BACK);
@@ -112,6 +113,26 @@ void readImageBuffer(Mat& cvImg)
 	cvtColor(cvImg, cvImg, CV_RGBA2BGR);		// OpenCVのBGR並びに変換
 	flip(cvImg, cvImg, 0);						// OpenCVに合わせて上下反転
 }
+//	デプスマップを取得
+//	引数dmapはカメラ画像と同じ大きさの1ch画像(CV_32FC1)を用意する
+//	保存されるのは距離(mm)となる
+void getDepthMap(Mat &dmap)
+{
+	float m[16];
+	float f, n;		//	クリッピング
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glGetFloatv(GL_PROJECTION, m);			//	デプスバッファから距離を算出するため射影行列をロード
+	f = m[14] / (m[10] + 1.0);				//	far clipping
+	n = m[14] / (m[10] - 1.0);				//	near clipping
+
+	if (dmap.depth() == CV_8U) dmap.convertTo(dmap, CV_32F);
+	glReadPixels(0, 0, dmap.cols, dmap.rows, GL_DEPTH_COMPONENT, GL_FLOAT, dmap.data);	//	デプスマップ読み込み
+	
+	dmap = (f - dmap * (f - n))/f/n;
+}
+
 //	大津の手法の閾値を返す関数
 int thresholdOtsu(Mat &srcImg)
 {
@@ -119,3 +140,4 @@ int thresholdOtsu(Mat &srcImg)
 	cvtColor(srcImg, grayImg, CV_BGR2GRAY);
 	return (int)threshold(grayImg, grayImg, 128, 255, THRESH_BINARY | THRESH_OTSU);
 }
+
