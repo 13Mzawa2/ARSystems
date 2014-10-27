@@ -49,10 +49,10 @@ namespace VirtualTouch {
 	private: System::Windows::Forms::ToolStripMenuItem^  ヘルプToolStripMenuItem;
 	private: System::Windows::Forms::PictureBox^  pictureBox1;
 	private: System::Windows::Forms::ToolStripMenuItem^  シリアルポートToolStripMenuItem;
-	private: System::Windows::Forms::ToolStripMenuItem^  開くToolStripMenuItem1;
-	private: System::Windows::Forms::ToolStripMenuItem^  閉じるToolStripMenuItem;
-	private: System::Windows::Forms::ToolStripMenuItem^  ボーレートToolStripMenuItem;
-	private: System::Windows::Forms::ToolStripMenuItem^  ポートToolStripMenuItem;
+
+
+
+
 	private: System::Windows::Forms::ToolStripMenuItem^  aRToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  aRマーカーToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  カメラパラメータToolStripMenuItem;
@@ -73,6 +73,7 @@ namespace VirtualTouch {
 
 	protected:
 	private: System::ComponentModel::IContainer^  components;
+	private: System::Windows::Forms::ToolStripMenuItem^  振動ONToolStripMenuItem;
 
 	private:
 		/// <summary>
@@ -97,10 +98,6 @@ namespace VirtualTouch {
 			this->編集ToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->設定ToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->シリアルポートToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->開くToolStripMenuItem1 = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->閉じるToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->ボーレートToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->ポートToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->aRToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->aRマーカーToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->カメラパラメータToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -111,6 +108,7 @@ namespace VirtualTouch {
 			this->oFFToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->振動子位置表示ToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->実験モードToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->振動ONToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->カメラToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->入力ToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->一時停止ToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -126,6 +124,10 @@ namespace VirtualTouch {
 			this->menuStrip1->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
 			this->SuspendLayout();
+			// 
+			// serialPort1
+			// 
+			this->serialPort1->DataReceived += gcnew System::IO::Ports::SerialDataReceivedEventHandler(this, &MainForm::serialPort1_DataReceived);
 			// 
 			// menuStrip1
 			// 
@@ -164,7 +166,7 @@ namespace VirtualTouch {
 			// 終了ToolStripMenuItem
 			// 
 			this->終了ToolStripMenuItem->Name = L"終了ToolStripMenuItem";
-			this->終了ToolStripMenuItem->Size = System::Drawing::Size(152, 22);
+			this->終了ToolStripMenuItem->Size = System::Drawing::Size(142, 22);
 			this->終了ToolStripMenuItem->Text = L"終了";
 			this->終了ToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::終了ToolStripMenuItem_Click);
 			// 
@@ -186,37 +188,10 @@ namespace VirtualTouch {
 			// 
 			// シリアルポートToolStripMenuItem
 			// 
-			this->シリアルポートToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {
-				this->開くToolStripMenuItem1,
-					this->閉じるToolStripMenuItem, this->ボーレートToolStripMenuItem, this->ポートToolStripMenuItem
-			});
 			this->シリアルポートToolStripMenuItem->Name = L"シリアルポートToolStripMenuItem";
 			this->シリアルポートToolStripMenuItem->Size = System::Drawing::Size(138, 22);
 			this->シリアルポートToolStripMenuItem->Text = L"シリアルポート";
-			// 
-			// 開くToolStripMenuItem1
-			// 
-			this->開くToolStripMenuItem1->Name = L"開くToolStripMenuItem1";
-			this->開くToolStripMenuItem1->Size = System::Drawing::Size(121, 22);
-			this->開くToolStripMenuItem1->Text = L"開く";
-			// 
-			// 閉じるToolStripMenuItem
-			// 
-			this->閉じるToolStripMenuItem->Name = L"閉じるToolStripMenuItem";
-			this->閉じるToolStripMenuItem->Size = System::Drawing::Size(121, 22);
-			this->閉じるToolStripMenuItem->Text = L"閉じる";
-			// 
-			// ボーレートToolStripMenuItem
-			// 
-			this->ボーレートToolStripMenuItem->Name = L"ボーレートToolStripMenuItem";
-			this->ボーレートToolStripMenuItem->Size = System::Drawing::Size(121, 22);
-			this->ボーレートToolStripMenuItem->Text = L"ボーレート";
-			// 
-			// ポートToolStripMenuItem
-			// 
-			this->ポートToolStripMenuItem->Name = L"ポートToolStripMenuItem";
-			this->ポートToolStripMenuItem->Size = System::Drawing::Size(121, 22);
-			this->ポートToolStripMenuItem->Text = L"ポート";
+			this->シリアルポートToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::シリアルポートToolStripMenuItem_Click);
 			// 
 			// aRToolStripMenuItem
 			// 
@@ -252,9 +227,9 @@ namespace VirtualTouch {
 			// 
 			// モードToolStripMenuItem
 			// 
-			this->モードToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {
+			this->モードToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {
 				this->モデル表示ToolStripMenuItem,
-					this->振動子位置表示ToolStripMenuItem, this->実験モードToolStripMenuItem
+					this->振動子位置表示ToolStripMenuItem, this->実験モードToolStripMenuItem, this->振動ONToolStripMenuItem
 			});
 			this->モードToolStripMenuItem->Name = L"モードToolStripMenuItem";
 			this->モードToolStripMenuItem->Size = System::Drawing::Size(152, 22);
@@ -296,6 +271,13 @@ namespace VirtualTouch {
 			this->実験モードToolStripMenuItem->Size = System::Drawing::Size(158, 22);
 			this->実験モードToolStripMenuItem->Text = L"実験モード";
 			// 
+			// 振動ONToolStripMenuItem
+			// 
+			this->振動ONToolStripMenuItem->Name = L"振動ONToolStripMenuItem";
+			this->振動ONToolStripMenuItem->Size = System::Drawing::Size(158, 22);
+			this->振動ONToolStripMenuItem->Text = L"振動ON";
+			this->振動ONToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::振動ONToolStripMenuItem_Click);
+			// 
 			// カメラToolStripMenuItem
 			// 
 			this->カメラToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {
@@ -309,28 +291,28 @@ namespace VirtualTouch {
 			// 入力ToolStripMenuItem
 			// 
 			this->入力ToolStripMenuItem->Name = L"入力ToolStripMenuItem";
-			this->入力ToolStripMenuItem->Size = System::Drawing::Size(152, 22);
+			this->入力ToolStripMenuItem->Size = System::Drawing::Size(142, 22);
 			this->入力ToolStripMenuItem->Text = L"入力";
 			this->入力ToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::入力ToolStripMenuItem_Click);
 			// 
 			// 一時停止ToolStripMenuItem
 			// 
 			this->一時停止ToolStripMenuItem->Name = L"一時停止ToolStripMenuItem";
-			this->一時停止ToolStripMenuItem->Size = System::Drawing::Size(152, 22);
+			this->一時停止ToolStripMenuItem->Size = System::Drawing::Size(142, 22);
 			this->一時停止ToolStripMenuItem->Text = L"一時停止";
 			this->一時停止ToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::一時停止ToolStripMenuItem_Click);
 			// 
 			// スナップを保存ToolStripMenuItem1
 			// 
 			this->スナップを保存ToolStripMenuItem1->Name = L"スナップを保存ToolStripMenuItem1";
-			this->スナップを保存ToolStripMenuItem1->Size = System::Drawing::Size(152, 22);
+			this->スナップを保存ToolStripMenuItem1->Size = System::Drawing::Size(142, 22);
 			this->スナップを保存ToolStripMenuItem1->Text = L"スナップを保存";
 			this->スナップを保存ToolStripMenuItem1->Click += gcnew System::EventHandler(this, &MainForm::スナップを保存ToolStripMenuItem1_Click);
 			// 
 			// 終了ToolStripMenuItem1
 			// 
 			this->終了ToolStripMenuItem1->Name = L"終了ToolStripMenuItem1";
-			this->終了ToolStripMenuItem1->Size = System::Drawing::Size(152, 22);
+			this->終了ToolStripMenuItem1->Size = System::Drawing::Size(142, 22);
 			this->終了ToolStripMenuItem1->Text = L"終了";
 			this->終了ToolStripMenuItem1->Click += gcnew System::EventHandler(this, &MainForm::終了ToolStripMenuItem1_Click);
 			// 
@@ -420,7 +402,13 @@ namespace VirtualTouch {
 		System::Void 一時停止ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
 		System::Void 終了ToolStripMenuItem1_Click(System::Object^  sender, System::EventArgs^  e);
 		System::Void スナップを保存ToolStripMenuItem1_Click(System::Object^  sender, System::EventArgs^  e);
-	};
+		//	コントロール->モード
+		System::Void 振動ONToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
+		//	設定
+		System::Void シリアルポートToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
+		System::Void serialPort1_DataReceived(System::Object^  sender, System::IO::Ports::SerialDataReceivedEventArgs^  e);
+		System::Void setMotorState(void);
+};
 }
 
 //#include "ARToolKitAdapter.h"
@@ -433,6 +421,7 @@ namespace VirtualTouch {
 extern bool		camStop;		//	一時停止中にtrue
 extern bool		camIsOpen;		//	カメラが開いている状態でtrue
 extern cv::Mat	depthMap;		//	取得したデプスマップ
-extern cv::Mat	ZMap;			//	距離マップ
+extern cv::Mat	ZMap;			//	距離
+extern bool		serialPorrtIsSet;
 
 System::Void winShowImage(System::Windows::Forms::PictureBox^ picturebox, cv::Mat img);

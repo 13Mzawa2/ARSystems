@@ -1,4 +1,5 @@
 #include "MainForm.h"
+#include "SerialPortForm.h"
 
 #define WINDOW_W	640
 #define WINDOW_H	480
@@ -14,6 +15,9 @@ bool	camStop = true;			//	一時停止中にtrue
 bool	camIsOpen = false;		//	カメラが開いている状態でtrue
 Mat		depthMap;				//	取得したデプスマップ
 Mat		ZMap;					//	デプスマップを変換して得られる距離
+bool	serialPortIsSet = false;
+unsigned char	motorState[2][VIB_NUM] = { {0x06}, {0x00} };
+
 static cv::Point vibrator[VIB_NUM]= {
 	cv::Point(380, 270),			//	親指
 	cv::Point(350, 220),			//	人差指
@@ -72,7 +76,92 @@ System::Void winShowImage(System::Windows::Forms::PictureBox^ picturebox, cv::Ma
 //=============================================================
 System::Void MainForm::終了ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
 {
+	serialPort1->Close();
 	this->Close();
+}
+//=============================================================
+//		設定
+//=============================================================
+System::Void MainForm::シリアルポートToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
+{
+	SerialPortForm^ spform = gcnew SerialPortForm();
+	spform->ShowDialog(this);
+
+	if (serialPortIsSet)
+	{
+		try
+		{
+			serialPort1->PortName = spform->comboBox1->SelectedItem->ToString();
+			serialPort1->BaudRate = int::Parse(spform->comboBox2->SelectedItem->ToString());
+			serialPort1->Open();
+			serialPortIsSet = false;
+		}
+		catch (System::NullReferenceException^ ex)
+		{
+			MessageBox::Show(ex->Message + "\n注釈：ポート名が設定されていない可能性があります", "エラー", MessageBoxButtons::OK, MessageBoxIcon::Error);
+		}
+	}
+	else
+	{
+		serialPort1->Close();
+	}
+	return;
+}
+//	通信用関数
+System::Void MainForm::serialPort1_DataReceived(System::Object^  sender, System::IO::Ports::SerialDataReceivedEventArgs^  e)
+{
+	if (serialPort1->ReadChar() == 'N')
+	{
+		array<unsigned char>^ motor = gcnew array<unsigned char>(VIB_NUM + 2);
+		motor[0] = '\n';
+		for (int i = 0; i < VIB_NUM; i++)
+			motor[i + 1] = (motorState[0][i] << 2) | motorState[1][i];
+		motor[VIB_NUM + 1] = '\r';
+
+		try
+		{
+			serialPort1->Write(motor, 0, VIB_NUM + 2);
+			delete motor;
+		}
+		catch (System::InvalidOperationException^ ex)
+		{
+			MessageBox::Show(ex->Message, "エラー", MessageBoxButtons::OK, MessageBoxIcon::Error);
+			delete motor;
+			return;
+		}
+	}
+}
+System::Void MainForm::setMotorState(void)
+{
+	double refV, znear, zfar;
+	getClip(znear, zfar);
+	for (int i = 0; i < VIB_NUM; i++)
+	{
+		double z = - ZMap.at<float>(vibrator[i]);
+		refV = 170.0 - 170.0 / (zfar - znear)*(z - znear);		//	距離‐振動数一次変換式
+		refV = 0.0002*refV*refV - 0.0043*refV + 0.4719;								//	振動数‐電圧変換式
+		motorState[0][i] = (int)(refV / 0.08);
+		if (motorState[0][i] < 0x06) motorState[0][i] = 0x06;
+		else if (motorState[0][i] > 0x3f) motorState[0][i] = 0x3f;
+	}
+}
+//=============================================================
+//		コントロール->モード
+//=============================================================
+System::Void MainForm::振動ONToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
+{
+	if (振動ONToolStripMenuItem->Checked)
+	{
+		振動ONToolStripMenuItem->Checked = false;
+		for (int i = 0; i < VIB_NUM; i++)
+			motorState[1][i] = 0x00;
+	}
+	else
+	{
+		振動ONToolStripMenuItem->Checked = true;
+		for (int i = 0; i < VIB_NUM; i++)
+			motorState[1][i] = 0x01;
+	}
 }
 //=============================================================
 //		コントロール->カメラ
@@ -170,7 +259,8 @@ System::Void MainForm::入力ToolStripMenuItem_Click(System::Object^  sender, Syst
 				glPushMatrix();					//	カレント変換行列を保存
 				glTranslatef(0.0, 0.0, 20.0);	// マーカの上に載せるためにZ方向（マーカ上方）に20.0[mm]移動
 				glRotated(90.0, 1.0, 0.0, 0.0);
-				glutSolidTeapot(50.0);			// ソリッドキューブを描画（1辺のサイズ50[mm]）
+				glutSolidCone(100.0, 173.0, 20, 20);
+				//glutSolidTeapot(100.0);			// ソリッドキューブを描画（1辺のサイズ50[mm]）
 				glPopMatrix();					//	カレント変換行列を呼び出し
 
 				//	デプスマップ取得
@@ -196,6 +286,7 @@ System::Void MainForm::入力ToolStripMenuItem_Click(System::Object^  sender, Syst
 		}
 
 		cvtDepth2Z(depthMap, ZMap);
+		setMotorState();
 		//	振動子位置の描画
 		for (int i = 0; i < VIB_NUM; i++)
 		{

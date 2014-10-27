@@ -24,6 +24,9 @@
     <ClCompile Include="ARTKBasedOpenCVWrapper.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="SerialPortForm.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainForm.h">
@@ -37,6 +40,9 @@
     </ClInclude>
     <ClInclude Include="ARTKBasedOpenCVWrapper.h">
       <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="SerialPortForm.h">
+      <Filter>ソース ファイル</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
