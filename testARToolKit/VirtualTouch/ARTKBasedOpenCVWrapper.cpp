@@ -113,26 +113,47 @@ void readImageBuffer(Mat& cvImg)
 	cvtColor(cvImg, cvImg, CV_RGBA2BGR);		// OpenCVのBGR並びに変換
 	flip(cvImg, cvImg, 0);						// OpenCVに合わせて上下反転
 }
-//	デプスマップを取得
+//	デプスマップ(0(near), 1(far))を取得
 //	引数dmapはカメラ画像と同じ大きさの1ch画像(CV_32FC1)を用意する
-//	保存されるのは距離(mm)となる
+//	距離(mm)を得るにはここから変換する必要がある
 void getDepthMap(Mat &dmap)
 {
-	float m[16];
-	float f, n;		//	クリッピング
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glGetFloatv(GL_PROJECTION, m);			//	デプスバッファから距離を算出するため射影行列をロード
-	f = m[14] / (m[10] + 1.0);				//	far clipping
-	n = m[14] / (m[10] - 1.0);				//	near clipping
-
-	if (dmap.depth() == CV_8U) dmap.convertTo(dmap, CV_32F);
+	if (dmap.depth() != CV_32F) dmap.convertTo(dmap, CV_32F);
 	glReadPixels(0, 0, dmap.cols, dmap.rows, GL_DEPTH_COMPONENT, GL_FLOAT, dmap.data);	//	デプスマップ読み込み
-	
-	dmap = (f - dmap * (f - n))/f/n;
+	flip(dmap, dmap, 0);
+	//dmap = f*n/(f - dmap * (f - n));
 }
+void getClip(double &n, double &f)
+{
+	float m[16];
 
+	//glMatrixMode(GL_PROJECTION);
+	//glLoadIdentity();
+	glGetFloatv(GL_PROJECTION_MATRIX, m);	//	デプスバッファから距離を算出するため射影行列をロード
+	f = m[14] / (m[10] - 1.0);			//	far clipping
+	n = m[14] / (m[10] + 1.0);			//	near clipping
+}
+void cvtDepth2Z(Mat &dmap, Mat &zmap)
+{
+	double f, n;
+	getClip(n, f);
+	zmap = dmap.clone();
+	zmap = f*n / (dmap * (f - n) - f);
+/*	for (int y = 0; y < dmap.rows; y++)
+	{
+		for (int x = 0; x < dmap.cols; x++)
+		{
+			zmap.at<float>(x, y) = f * n / (dmap.at<float>(x, y) * (f - n) - f);
+		}
+	}*/
+}
+void getDepthImage(Mat &dmap, Mat &dimg)
+{
+	Mat depthImg = dmap.clone();
+	depthImg = 255.0 - (depthImg * 255.0);
+	depthImg.convertTo(depthImg, CV_8U);
+	cvtColor(depthImg, dimg, CV_GRAY2BGR);
+}
 //	大津の手法の閾値を返す関数
 int thresholdOtsu(Mat &srcImg)
 {

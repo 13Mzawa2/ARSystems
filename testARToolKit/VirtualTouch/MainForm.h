@@ -433,6 +433,6 @@ namespace VirtualTouch {
 extern bool		camStop;		//	一時停止中にtrue
 extern bool		camIsOpen;		//	カメラが開いている状態でtrue
 extern cv::Mat	depthMap;		//	取得したデプスマップ
-
+extern cv::Mat	ZMap;			//	距離マップ
 
 System::Void winShowImage(System::Windows::Forms::PictureBox^ picturebox, cv::Mat img);

@@ -13,6 +13,7 @@ using namespace System::Runtime::InteropServices;
 bool	camStop = true;			//	一時停止中にtrue
 bool	camIsOpen = false;		//	カメラが開いている状態でtrue
 Mat		depthMap;				//	取得したデプスマップ
+Mat		ZMap;					//	デプスマップを変換して得られる距離
 static cv::Point vibrator[VIB_NUM]= {
 	cv::Point(380, 270),			//	親指
 	cv::Point(350, 220),			//	人差指
@@ -94,6 +95,8 @@ System::Void MainForm::入力ToolStripMenuItem_Click(System::Object^  sender, Syst
 	ARUint8			*arImg;					//	ARToolKit側の画像保管バッファ
 	ARMarkerInfo	*markerInfo;			//	ARTKのマーカー情報(複数の場合は配列になる)
 	static bool		isFirstDetect = true;
+	double			farClip, nearClip;
+
 	cap >> frame;
 	if (!arSetup(frame))
 	{
@@ -172,25 +175,34 @@ System::Void MainForm::入力ToolStripMenuItem_Click(System::Object^  sender, Syst
 
 				//	デプスマップ取得
 				cvtColor(frame, depthMap, CV_BGR2GRAY);
+				getClip(nearClip, farClip);
 				getDepthMap(depthMap);
 			}
 			arEndObjectRender();
+
+			getDepthImage(depthMap, cvImg);
+			/*Mat depthImg = depthMap.clone();
+			depthImg = 255.0 - (depthImg * 255.0);
+			depthImg.convertTo(depthImg, CV_8U);
+			cvtColor(depthImg, cvImg, CV_GRAY2BGR);*/
 		}
 		else
 		{
 			isFirstDetect = false;
 			cvtColor(frame, depthMap, CV_BGR2GRAY);
 			depthMap.convertTo(depthMap, CV_32F);
-			depthMap = 0.0;
+			depthMap = 1.0;
+			readImageBuffer(cvImg);					//	OpenGLバッファからレンダリング後の画像を読み取る
 		}
-		readImageBuffer(cvImg);					//	OpenGLバッファからレンダリング後の画像を読み取る
 
+		cvtDepth2Z(depthMap, ZMap);
 		//	振動子位置の描画
 		for (int i = 0; i < VIB_NUM; i++)
 		{
-			float depth = depthMap.at<float>(vibrator[i]);
+			float depth = ZMap.at<float>(vibrator[i]);
+			//depth = farClip * nearClip / (depth * (farClip - nearClip) - farClip);
 			char s[256];
-			sprintf_s(s, 256, "%.2f", depth);
+			sprintf_s(s, 20, "%.2f", depth);
 			putText(cvImg, s, cv::Point(10, 18 * (i+1)), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 255, 255), 1, CV_AA);
 			circle(cvImg, vibrator[i], 8, Scalar(0, 0, 255), 2, CV_AA);
 		}
