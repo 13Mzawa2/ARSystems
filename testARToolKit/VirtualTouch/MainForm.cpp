@@ -1,9 +1,11 @@
 #include "MainForm.h"
 #include "SerialPortForm.h"
+#include <math.h>
 
 #define WINDOW_W	640
 #define WINDOW_H	480
 #define VIB_NUM		5
+#define MODEL_SIZE	500.0
 
 using namespace VirtualTouch;
 using namespace System::Runtime::InteropServices;
@@ -11,11 +13,12 @@ using namespace System::Runtime::InteropServices;
 //----------------------
 //	必要なグローバル変数
 //----------------------
-bool	camStop = true;			//	一時停止中にtrue
-bool	camIsOpen = false;		//	カメラが開いている状態でtrue
-Mat		depthMap;				//	取得したデプスマップ
-Mat		ZMap;					//	デプスマップを変換して得られる距離
-bool	serialPortIsSet = false;
+bool	camStop = true;				//	一時停止中にtrue
+bool	camIsOpen = false;			//	カメラが開いている状態でtrue
+Mat		depthMap;					//	取得したデプスマップ
+Mat		ZMap;						//	デプスマップを変換して得られる距離
+bool	serialPortIsSet = false;	//	シリアルポート用
+int		objectNum = 0;				//	描画する3Dモデルの番号
 unsigned char	motorState[2][VIB_NUM] = { {0x06}, {0x00} };
 
 static cv::Point vibrator[VIB_NUM]= {
@@ -84,6 +87,8 @@ System::Void MainForm::終了ToolStripMenuItem_Click(System::Object^  sender, Syst
 //=============================================================
 System::Void MainForm::シリアルポートToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
 {
+	if (serialPort1->IsOpen)
+		serialPortIsSet = false;
 	SerialPortForm^ spform = gcnew SerialPortForm();
 	spform->ShowDialog(this);
 
@@ -95,6 +100,7 @@ System::Void MainForm::シリアルポートToolStripMenuItem_Click(System::Object^  se
 			serialPort1->BaudRate = int::Parse(spform->comboBox2->SelectedItem->ToString());
 			serialPort1->Open();
 			serialPortIsSet = false;
+			this->Text = "MainForm - 接続中";
 		}
 		catch (System::NullReferenceException^ ex)
 		{
@@ -103,6 +109,7 @@ System::Void MainForm::シリアルポートToolStripMenuItem_Click(System::Object^  se
 	}
 	else
 	{
+		this->Text = "MainForm";
 		serialPort1->Close();
 	}
 	return;
@@ -163,6 +170,11 @@ System::Void MainForm::振動ONToolStripMenuItem_Click(System::Object^  sender, Sy
 			motorState[1][i] = 0x01;
 	}
 }
+System::Void MainForm::デプスマップToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
+{
+//	if (デプスマップToolStripMenuItem->Checked) デプスマップToolStripMenuItem->Checked = false;
+//	else デプスマップToolStripMenuItem->Checked = true;
+}
 //=============================================================
 //		コントロール->カメラ
 //=============================================================
@@ -180,7 +192,7 @@ System::Void MainForm::入力ToolStripMenuItem_Click(System::Object^  sender, Syst
 
 	Threading::Thread::Sleep(1000);
 
-	Mat				cvImg, frame;			//	OpenCV側の画像保管バッファ
+	Mat				cvImg, frame;			//	OpenCV側の画像保管バッファ(出力用、入力)
 	ARUint8			*arImg;					//	ARToolKit側の画像保管バッファ
 	ARMarkerInfo	*markerInfo;			//	ARTKのマーカー情報(複数の場合は配列になる)
 	static bool		isFirstDetect = true;
@@ -198,7 +210,6 @@ System::Void MainForm::入力ToolStripMenuItem_Click(System::Object^  sender, Syst
 	while (camIsOpen)
 	{
 		cap >> frame;
-		//cvtImageCV2AR(frame, arImg);
 		cvtColor(frame, cvImg, CV_BGR2BGRA);	//	ARTKに渡すための変換
 		arImg = (ARUint8*)(cvImg.data);			//	ARTKに画像データのみ渡す
 		// カメラ画像のバッファへの描画
@@ -207,7 +218,8 @@ System::Void MainForm::入力ToolStripMenuItem_Click(System::Object^  sender, Syst
 
 		int	markerNum;							//	検出されたマーカー数
 		// マーカの検出と認識
-		if (arDetectMarker(arImg, thresholdOtsu(frame), &markerInfo, &markerNum) < 0) break;
+		//		if (arDetectMarker(arImg, thresholdOtsu(frame), &markerInfo, &markerNum) < 0) break;
+		if (arDetectMarker(arImg, 30, &markerInfo, &markerNum) < 0) break;
 
 		// マーカの一致度の比較 最も一致度の高いマーカーがk番目に存在する
 		int k = -1;
@@ -219,6 +231,7 @@ System::Void MainForm::入力ToolStripMenuItem_Click(System::Object^  sender, Syst
 				else if (markerInfo[k].cf < markerInfo[j].cf) k = j;
 			}
 		}
+		//	一致度の高いマーカーが見つかった場合
 		if (k != -1)
 		{
 			// マーカの位置・姿勢（座標変換行列）の計算
@@ -232,36 +245,10 @@ System::Void MainForm::入力ToolStripMenuItem_Click(System::Object^  sender, Syst
 			arBeginObjectRender();
 			{
 				// ライティング
-				// ライトの定義
-				GLfloat lt0_position[] = { 100.0, -200.0, 200.0, 0.0 };	//	ライト0の位置
-				GLfloat lt0_ambient[] = { 0.1, 0.1, 0.1, 1.0 };			//	環境光
-				GLfloat lt0_diffuse[] = { 0.8, 0.8, 0.8, 1.0 };			//	拡散光
-				// ライトの設定
-				glLightfv(GL_LIGHT0, GL_POSITION, lt0_position);
-				glLightfv(GL_LIGHT0, GL_AMBIENT, lt0_ambient);
-				glLightfv(GL_LIGHT0, GL_DIFFUSE, lt0_diffuse);
-
-				glEnable(GL_LIGHTING);		// ライティング・有効
-				glEnable(GL_LIGHT0);		// ライト0・オン
-
-				// オブジェクトの材質
-				// オブジェクトの材質
-				GLfloat mat_ambient[] = { 0.0, 0.0, 1.0, 1.0 };		// 材質の環境光
-				GLfloat mat_specular[] = { 0.0, 0.0, 1.0, 1.0 };	// 鏡面光
-				GLfloat mat_shininess[] = { 50.0 };					// 鏡面係数
-
-				// マテリアルの設定
-				glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-				glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-				glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+				lighting();
 
 				// 3Dオブジェクトの描画
-				glPushMatrix();					//	カレント変換行列を保存
-				glTranslatef(0.0, 0.0, 20.0);	// マーカの上に載せるためにZ方向（マーカ上方）に20.0[mm]移動
-				glRotated(90.0, 1.0, 0.0, 0.0);
-				glutSolidCone(100.0, 173.0, 20, 20);
-				//glutSolidTeapot(100.0);			// ソリッドキューブを描画（1辺のサイズ50[mm]）
-				glPopMatrix();					//	カレント変換行列を呼び出し
+				draw3DObject(objectNum);
 
 				//	デプスマップ取得
 				cvtColor(frame, depthMap, CV_BGR2GRAY);
@@ -270,12 +257,13 @@ System::Void MainForm::入力ToolStripMenuItem_Click(System::Object^  sender, Syst
 			}
 			arEndObjectRender();
 
-			getDepthImage(depthMap, cvImg);
-			/*Mat depthImg = depthMap.clone();
-			depthImg = 255.0 - (depthImg * 255.0);
-			depthImg.convertTo(depthImg, CV_8U);
-			cvtColor(depthImg, cvImg, CV_GRAY2BGR);*/
+			//	デプスマップモードの場合にはデプスマップを表示
+			if (デプスマップToolStripMenuItem->Checked)
+				getDepthImage(depthMap, cvImg);			//	深度画像の取得
+			else
+				readImageBuffer(cvImg);					//	OpenGLバッファからレンダリング後の画像を読み取る
 		}
+		//	マーカーが見つからなかった場合
 		else
 		{
 			isFirstDetect = false;
@@ -285,19 +273,31 @@ System::Void MainForm::入力ToolStripMenuItem_Click(System::Object^  sender, Syst
 			readImageBuffer(cvImg);					//	OpenGLバッファからレンダリング後の画像を読み取る
 		}
 
+		//	距離情報をもとに振動子をセット
 		cvtDepth2Z(depthMap, ZMap);
 		setMotorState();
+
 		//	振動子位置の描画
-		for (int i = 0; i < VIB_NUM; i++)
+		if (振動子位置表示ToolStripMenuItem->Checked)
 		{
-			float depth = ZMap.at<float>(vibrator[i]);
-			//depth = farClip * nearClip / (depth * (farClip - nearClip) - farClip);
-			char s[256];
-			sprintf_s(s, 20, "%.2f", depth);
-			putText(cvImg, s, cv::Point(10, 18 * (i+1)), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 255, 255), 1, CV_AA);
-			circle(cvImg, vibrator[i], 8, Scalar(0, 0, 255), 2, CV_AA);
+			for (int i = 0; i < VIB_NUM; i++)
+			{
+				float depth = ZMap.at<float>(vibrator[i]);
+				//depth = farClip * nearClip / (depth * (farClip - nearClip) - farClip);
+				char s[256];
+				sprintf_s(s, 20, "%.2f", depth);
+				putText(cvImg, s, cv::Point(10, 18 * (i + 1)), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 255, 255), 1, CV_AA);
+				circle(cvImg, vibrator[i], 8, Scalar(0, 0, 255), 2, CV_AA);
+			}
 		}
-		if (!camStop)	winShowImage(pictureBox1, cvImg);
+
+		//	停止していなければ描画
+		if (!camStop)
+		{
+			if (モデル表示ToolStripMenuItem->Checked == false)
+				cvImg = frame;
+			winShowImage(pictureBox1, cvImg);
+		}
 		Application::DoEvents();
 	}
 }
@@ -343,6 +343,37 @@ System::Void MainForm::終了ToolStripMenuItem1_Click(System::Object^  sender, Sys
 }
 
 //=============================================================
+//		コントロール->3Dモデル
+//=============================================================
+System::Void MainForm::球ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
+{
+	objectNum = 1;
+}
+System::Void MainForm::立方体ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
+{
+	objectNum = 2;
+}
+System::Void MainForm::円柱ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
+{
+	objectNum = 3;
+}
+System::Void MainForm::円錐ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
+{
+	objectNum = 4;
+}
+System::Void MainForm::トーラスToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
+{
+	objectNum = 5;
+}
+System::Void MainForm::正八面体ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
+{
+	objectNum = 6;
+}
+System::Void MainForm::ティーポットToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
+{
+	objectNum = 7;
+}
+//=============================================================
 //		ウインドウ
 //=============================================================
 System::Void MainForm::x05ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
@@ -361,5 +392,111 @@ System::Void MainForm::x10ToolStripMenuItem_Click(System::Object^  sender, Syste
 		x05ToolStripMenuItem->Checked = false;
 		x10ToolStripMenuItem->Checked = true;
 		this->Width = WINDOW_W; this->Height = WINDOW_H;
+	}
+}
+//=============================================================
+//		その他
+//=============================================================
+void lighting(void)
+{
+	// ライトの定義
+	GLfloat lt0_position[] = { 100.0, -200.0, 200.0, 0.0 };	//	ライト0の位置
+	GLfloat lt0_ambient[] = { 0.1, 0.1, 0.1, 1.0 };			//	環境光
+	GLfloat lt0_diffuse[] = { 0.8, 0.8, 0.8, 1.0 };			//	拡散光
+	// ライトの設定
+	glLightfv(GL_LIGHT0, GL_POSITION, lt0_position);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, lt0_ambient);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, lt0_diffuse);
+
+	glEnable(GL_LIGHTING);		// ライティング・有効
+	glEnable(GL_LIGHT0);		// ライト0・オン
+
+	// オブジェクトの材質
+	// オブジェクトの材質
+	GLfloat mat_ambient[] = { 0.0, 0.0, 1.0, 1.0 };		// 材質の環境光
+	GLfloat mat_specular[] = { 0.0, 0.0, 1.0, 1.0 };	// 鏡面光
+	GLfloat mat_shininess[] = { 50.0 };					// 鏡面係数
+
+	// マテリアルの設定
+	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+	glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+}
+System::Void MainForm::draw3DObject(int objNum)
+{
+	switch (objNum)
+	{
+	case 1:		//	球
+		glPushMatrix();											//	カレント変換行列を保存
+		glTranslatef(0.0, 0.0, -MODEL_SIZE / sqrt(CV_PI));		// マーカの上に載せるためにZ方向（マーカ上方）に20.0[mm]移動
+		//glRotated(90.0, 1.0, 0.0, 0.0);
+		glutSolidSphere(MODEL_SIZE / sqrt(CV_PI), 20, 20);
+		glPopMatrix();											//	カレント変換行列を呼び出し
+		break;
+	case 2:		//	立方体
+		glPushMatrix();
+		glTranslatef(0.0, 0.0, -MODEL_SIZE / 2.0);
+		//glRotated(90.0, 1.0, 0.0, 0.0);
+		glutSolidCube(MODEL_SIZE);
+		glPopMatrix();
+		break;
+	case 3:		//	円柱
+		glPushMatrix();
+		glTranslatef(0.0, 0.0, -MODEL_SIZE / 2.0);
+		//glRotated(90.0, 1.0, 0.0, 0.0);
+		glutSolidCylinder(MODEL_SIZE / 2.0, MODEL_SIZE, 1, 20);
+		glPopMatrix();
+		break;
+	case 4:		//	円錐
+		glPushMatrix();
+		glRotated(-90.0, 1.0, 0.0, 0.0);
+		glTranslatef(0.0, MODEL_SIZE / sqrt(2.0), -MODEL_SIZE / sqrt(2.0));
+		glutSolidCone(MODEL_SIZE / sqrt(2.0), MODEL_SIZE * sqrt(2.0), 20, 20);
+		glPopMatrix();
+		break;
+	case 5:		//	トーラス
+		glPushMatrix();
+		glTranslatef(0.0, 0.0, -MODEL_SIZE / sqrt(CV_PI) / 2.0);
+		//glRotated(90.0, 1.0, 0.0, 0.0);
+		glutSolidTorus(MODEL_SIZE / sqrt(CV_PI) * 0.25, MODEL_SIZE / sqrt(CV_PI) * 0.75, 20, 40);
+		glPopMatrix();
+		break;
+	case 6:		//	正八面体
+		glPushMatrix();
+		glTranslatef(0.0, 0.0, -MODEL_SIZE / sqrt(2.0));
+		//glRotated(90.0, 1.0, 0.0, 0.0);
+		glutSolidSphere(MODEL_SIZE / sqrt(2.0), 4, 2);
+		glPopMatrix();
+		break;
+	case 7:		//	ティーポット
+		glPushMatrix();
+		glTranslatef(0.0, 0.0, MODEL_SIZE * 0.3);
+//		glRotated(90.0, 1.0, 0.0, 0.0);
+		glutSolidTeapot(MODEL_SIZE * 0.6);
+		glPopMatrix();
+		break;
+		
+	default:	//	3軸
+		glPushMatrix();
+		glDisable(GL_LIGHTING);
+		glBegin(GL_LINES);
+		{
+			glPointSize(MODEL_SIZE / 50.0);
+			//	X Axis
+			glColor3d(1.0, 0.0, 0.0);
+			glVertex3f(0.0, 0.0, 0.0);
+			glVertex3f(MODEL_SIZE / 5.0, 0.0, 0.0);
+			//	Y Axis
+			glColor3d(0.0, 1.0, 0.0);
+			glVertex3f(0.0, 0.0, 0.0);
+			glVertex3f(0.0, MODEL_SIZE / 5.0, 0.0);
+			//	Z Axis
+			glColor3d(0.0, 0.0, 1.0);
+			glVertex3f(0.0, 0.0, 0.0);
+			glVertex3f(0.0, 0.0, MODEL_SIZE / 5.0);
+		}
+		glEnd();
+		glEnable(GL_LIGHTING);
+		glPopMatrix();
 	}
 }

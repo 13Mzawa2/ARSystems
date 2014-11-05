@@ -15,7 +15,7 @@ bool arSetup(Mat& camImg)
 	//	ARパターンのセットアップ
 	patt.name = "Data/patt.hiro";
 	patt.center[0] = 0.0; patt.center[1] = 0.0;
-	patt.width = 80.0;
+	patt.width = 200.0;								//	ARマーカーの一辺の長さ(mm)
 
 	// ウィンドウサイズの取得
 	xsize = camImg.cols; ysize = camImg.rows;
@@ -87,9 +87,6 @@ void cvtImageCV2AR(Mat& cvImg, ARUint8* arImg)
 	Mat cvTemp;
 	cvtColor(cvImg, cvTemp, CV_BGR2BGRA);		//	ARTKに渡すための変換
 	arImg = (ARUint8*)(cvTemp.data);			//	ARTKに画像データのみ渡す
-	// カメラ画像のバッファへの描画
-	argDrawMode2D();
-	argDispImage(arImg, 0, 0);
 }
 
 //	ARUint8 -> cv::Mat
@@ -98,6 +95,16 @@ void cvtImageAR2CV(ARUint8* arImg, Mat& cvImg)
 	memcpy(cvImg.data, arImg, cvImg.rows * cvImg.cols * cvImg.channels());
 }
 
+void writeImageBuffer(Mat& cvImg)
+{
+	Mat cvTemp;
+	ARUint8* arImg;
+	cvtColor(cvImg, cvTemp, CV_BGR2BGRA);		//	ARTKに渡すための変換
+	arImg = (ARUint8*)(cvTemp.data);			//	ARTKに画像データのみ渡す
+	// カメラ画像のバッファへの描画
+	argDrawMode2D();
+	argDispImage(arImg, 0, 0);
+}
 //	OpenGLバッファの内容をBGR画像として取得
 //	引数cvImgはカメラ画像と同じ大きさの4ch画像（CV_8UC4）を渡す
 void readImageBuffer(Mat& cvImg)
@@ -162,3 +169,47 @@ int thresholdOtsu(Mat &srcImg)
 	return (int)threshold(grayImg, grayImg, 128, 255, THRESH_BINARY | THRESH_OTSU);
 }
 
+//	円柱を描画するOpenGL関数
+//	円柱はglutにはないので自作
+//	axis : 0...x軸方向, 1...y軸方向, 2...z軸方向（デフォルト）
+void glutSolidCylinder(GLdouble radius, GLdouble length, GLint axis, GLint slices)
+{
+	GLUquadric *qobj;
+	qobj = gluNewQuadric();
+
+	glPushMatrix();
+	switch (axis)
+	{
+	case 0:
+		glRotated(-90.0, 0.0, 1.0, 0.0);
+		glTranslated(0.0, 0.0, -0.5*length);
+		break;
+	case 1:
+		glRotated(-90.0, 1.0, 0.0, 0.0);
+		glTranslated(0.0, 0.0, -0.5*length);
+		break;
+	case 2:
+		glTranslated(0.0, 0.0, -0.5*length);
+		break;
+	default:
+		glTranslated(0.0, 0.0, -0.5*length);
+	}
+
+	gluQuadricDrawStyle(qobj, GLU_FILL);
+	gluQuadricNormals(qobj, GLU_SMOOTH);
+	gluCylinder(qobj, radius, radius, length, slices, slices);
+
+	//	Bottom Disk
+	glPushMatrix();
+	glRotated(180.0, 1.0, 0.0, 0.0);
+	gluDisk(qobj, 0.0, radius, slices, slices);
+	glPopMatrix();
+
+	//	Top Disk
+	glPushMatrix();
+	glTranslated(0.0, 0.0, length);
+	gluDisk(qobj, 0.0, radius, slices, slices);
+	glPopMatrix();
+
+	glPopMatrix();
+}

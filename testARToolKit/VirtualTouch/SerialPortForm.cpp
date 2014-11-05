@@ -33,15 +33,7 @@ System::Void SerialPortForm::refreshCOMPortList(System::Void)
 //	Ú‘±ORØ’f
 System::Void SerialPortForm::button1_Click(System::Object^  sender, System::EventArgs^  e)
 {
-	if (button1->Text == "Ú‘±")
-	{
-		button1->Text = "Ø’f";
-		serialPortIsSet = true;
-	}
-	else
-	{
-		button1->Text = "Ú‘±";
-		serialPortIsSet = false;
-	}
+	button1->Text = "Ø’f";
+	serialPortIsSet = true;
 	this->Close();
 }

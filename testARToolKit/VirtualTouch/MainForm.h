@@ -38,7 +38,7 @@ namespace VirtualTouch {
 	private: System::Windows::Forms::MenuStrip^  menuStrip1;
 	private: System::Windows::Forms::ToolStripMenuItem^  ファイルToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  モデルを開くToolStripMenuItem;
-	private: System::Windows::Forms::ToolStripMenuItem^  スナップを保存ToolStripMenuItem;
+
 
 
 	private: System::Windows::Forms::ToolStripMenuItem^  終了ToolStripMenuItem;
@@ -58,8 +58,8 @@ namespace VirtualTouch {
 	private: System::Windows::Forms::ToolStripMenuItem^  カメラパラメータToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  モードToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  モデル表示ToolStripMenuItem;
-	private: System::Windows::Forms::ToolStripMenuItem^  oNToolStripMenuItem;
-	private: System::Windows::Forms::ToolStripMenuItem^  oFFToolStripMenuItem;
+
+
 	private: System::Windows::Forms::ToolStripMenuItem^  実験モードToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  カメラToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  入力ToolStripMenuItem;
@@ -74,6 +74,15 @@ namespace VirtualTouch {
 	protected:
 	private: System::ComponentModel::IContainer^  components;
 	private: System::Windows::Forms::ToolStripMenuItem^  振動ONToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  デプスマップToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  dモデルToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  球ToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  立方体ToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  円柱ToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  円錐ToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  ティーポットToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  トーラスToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  正八面体ToolStripMenuItem;
 
 	private:
 		/// <summary>
@@ -93,7 +102,6 @@ namespace VirtualTouch {
 			this->menuStrip1 = (gcnew System::Windows::Forms::MenuStrip());
 			this->ファイルToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->モデルを開くToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->スナップを保存ToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->終了ToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->編集ToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->設定ToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -104,16 +112,22 @@ namespace VirtualTouch {
 			this->コントロールToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->モードToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->モデル表示ToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->oNToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->oFFToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->振動子位置表示ToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->実験モードToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->振動ONToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->デプスマップToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->実験モードToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->カメラToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->入力ToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->一時停止ToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->スナップを保存ToolStripMenuItem1 = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->終了ToolStripMenuItem1 = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->dモデルToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->球ToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->立方体ToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->円柱ToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->円錐ToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->トーラスToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->ティーポットToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->ウィンドウToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->ウインドウサイズToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->x05ToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -121,6 +135,7 @@ namespace VirtualTouch {
 			this->ヘルプToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->pictureBox1 = (gcnew System::Windows::Forms::PictureBox());
 			this->saveFileDialog1 = (gcnew System::Windows::Forms::SaveFileDialog());
+			this->正八面体ToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->menuStrip1->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
 			this->SuspendLayout();
@@ -143,9 +158,9 @@ namespace VirtualTouch {
 			// 
 			// ファイルToolStripMenuItem
 			// 
-			this->ファイルToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {
+			this->ファイルToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {
 				this->モデルを開くToolStripMenuItem,
-					this->スナップを保存ToolStripMenuItem, this->終了ToolStripMenuItem
+					this->終了ToolStripMenuItem
 			});
 			this->ファイルToolStripMenuItem->Name = L"ファイルToolStripMenuItem";
 			this->ファイルToolStripMenuItem->Size = System::Drawing::Size(53, 20);
@@ -154,19 +169,13 @@ namespace VirtualTouch {
 			// モデルを開くToolStripMenuItem
 			// 
 			this->モデルを開くToolStripMenuItem->Name = L"モデルを開くToolStripMenuItem";
-			this->モデルを開くToolStripMenuItem->Size = System::Drawing::Size(142, 22);
+			this->モデルを開くToolStripMenuItem->Size = System::Drawing::Size(130, 22);
 			this->モデルを開くToolStripMenuItem->Text = L"モデルを開く";
-			// 
-			// スナップを保存ToolStripMenuItem
-			// 
-			this->スナップを保存ToolStripMenuItem->Name = L"スナップを保存ToolStripMenuItem";
-			this->スナップを保存ToolStripMenuItem->Size = System::Drawing::Size(142, 22);
-			this->スナップを保存ToolStripMenuItem->Text = L"スナップを保存";
 			// 
 			// 終了ToolStripMenuItem
 			// 
 			this->終了ToolStripMenuItem->Name = L"終了ToolStripMenuItem";
-			this->終了ToolStripMenuItem->Size = System::Drawing::Size(142, 22);
+			this->終了ToolStripMenuItem->Size = System::Drawing::Size(130, 22);
 			this->終了ToolStripMenuItem->Text = L"終了";
 			this->終了ToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::終了ToolStripMenuItem_Click);
 			// 
@@ -217,9 +226,9 @@ namespace VirtualTouch {
 			// 
 			// コントロールToolStripMenuItem
 			// 
-			this->コントロールToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {
+			this->コントロールToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {
 				this->モードToolStripMenuItem,
-					this->カメラToolStripMenuItem
+					this->カメラToolStripMenuItem, this->dモデルToolStripMenuItem
 			});
 			this->コントロールToolStripMenuItem->Name = L"コントロールToolStripMenuItem";
 			this->コントロールToolStripMenuItem->Size = System::Drawing::Size(73, 20);
@@ -227,9 +236,9 @@ namespace VirtualTouch {
 			// 
 			// モードToolStripMenuItem
 			// 
-			this->モードToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {
+			this->モードToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(5) {
 				this->モデル表示ToolStripMenuItem,
-					this->振動子位置表示ToolStripMenuItem, this->実験モードToolStripMenuItem, this->振動ONToolStripMenuItem
+					this->振動子位置表示ToolStripMenuItem, this->振動ONToolStripMenuItem, this->デプスマップToolStripMenuItem, this->実験モードToolStripMenuItem
 			});
 			this->モードToolStripMenuItem->Name = L"モードToolStripMenuItem";
 			this->モードToolStripMenuItem->Size = System::Drawing::Size(152, 22);
@@ -237,39 +246,21 @@ namespace VirtualTouch {
 			// 
 			// モデル表示ToolStripMenuItem
 			// 
-			this->モデル表示ToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {
-				this->oNToolStripMenuItem,
-					this->oFFToolStripMenuItem
-			});
+			this->モデル表示ToolStripMenuItem->Checked = true;
+			this->モデル表示ToolStripMenuItem->CheckOnClick = true;
+			this->モデル表示ToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
 			this->モデル表示ToolStripMenuItem->Name = L"モデル表示ToolStripMenuItem";
 			this->モデル表示ToolStripMenuItem->Size = System::Drawing::Size(158, 22);
 			this->モデル表示ToolStripMenuItem->Text = L"モデル表示";
 			// 
-			// oNToolStripMenuItem
-			// 
-			this->oNToolStripMenuItem->Checked = true;
-			this->oNToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
-			this->oNToolStripMenuItem->Name = L"oNToolStripMenuItem";
-			this->oNToolStripMenuItem->Size = System::Drawing::Size(97, 22);
-			this->oNToolStripMenuItem->Text = L"ON";
-			// 
-			// oFFToolStripMenuItem
-			// 
-			this->oFFToolStripMenuItem->Name = L"oFFToolStripMenuItem";
-			this->oFFToolStripMenuItem->Size = System::Drawing::Size(97, 22);
-			this->oFFToolStripMenuItem->Text = L"OFF";
-			// 
 			// 振動子位置表示ToolStripMenuItem
 			// 
+			this->振動子位置表示ToolStripMenuItem->Checked = true;
+			this->振動子位置表示ToolStripMenuItem->CheckOnClick = true;
+			this->振動子位置表示ToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
 			this->振動子位置表示ToolStripMenuItem->Name = L"振動子位置表示ToolStripMenuItem";
 			this->振動子位置表示ToolStripMenuItem->Size = System::Drawing::Size(158, 22);
 			this->振動子位置表示ToolStripMenuItem->Text = L"振動子位置表示";
-			// 
-			// 実験モードToolStripMenuItem
-			// 
-			this->実験モードToolStripMenuItem->Name = L"実験モードToolStripMenuItem";
-			this->実験モードToolStripMenuItem->Size = System::Drawing::Size(158, 22);
-			this->実験モードToolStripMenuItem->Text = L"実験モード";
 			// 
 			// 振動ONToolStripMenuItem
 			// 
@@ -277,6 +268,20 @@ namespace VirtualTouch {
 			this->振動ONToolStripMenuItem->Size = System::Drawing::Size(158, 22);
 			this->振動ONToolStripMenuItem->Text = L"振動ON";
 			this->振動ONToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::振動ONToolStripMenuItem_Click);
+			// 
+			// デプスマップToolStripMenuItem
+			// 
+			this->デプスマップToolStripMenuItem->CheckOnClick = true;
+			this->デプスマップToolStripMenuItem->Name = L"デプスマップToolStripMenuItem";
+			this->デプスマップToolStripMenuItem->Size = System::Drawing::Size(158, 22);
+			this->デプスマップToolStripMenuItem->Text = L"デプスマップ";
+			this->デプスマップToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::デプスマップToolStripMenuItem_Click);
+			// 
+			// 実験モードToolStripMenuItem
+			// 
+			this->実験モードToolStripMenuItem->Name = L"実験モードToolStripMenuItem";
+			this->実験モードToolStripMenuItem->Size = System::Drawing::Size(158, 22);
+			this->実験モードToolStripMenuItem->Text = L"実験モード";
 			// 
 			// カメラToolStripMenuItem
 			// 
@@ -315,6 +320,59 @@ namespace VirtualTouch {
 			this->終了ToolStripMenuItem1->Size = System::Drawing::Size(142, 22);
 			this->終了ToolStripMenuItem1->Text = L"終了";
 			this->終了ToolStripMenuItem1->Click += gcnew System::EventHandler(this, &MainForm::終了ToolStripMenuItem1_Click);
+			// 
+			// dモデルToolStripMenuItem
+			// 
+			this->dモデルToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(7) {
+				this->球ToolStripMenuItem,
+					this->立方体ToolStripMenuItem, this->円柱ToolStripMenuItem, this->円錐ToolStripMenuItem, this->トーラスToolStripMenuItem, this->正八面体ToolStripMenuItem,
+					this->ティーポットToolStripMenuItem
+			});
+			this->dモデルToolStripMenuItem->Name = L"dモデルToolStripMenuItem";
+			this->dモデルToolStripMenuItem->Size = System::Drawing::Size(152, 22);
+			this->dモデルToolStripMenuItem->Text = L"3Dモデル";
+			// 
+			// 球ToolStripMenuItem
+			// 
+			this->球ToolStripMenuItem->Name = L"球ToolStripMenuItem";
+			this->球ToolStripMenuItem->Size = System::Drawing::Size(152, 22);
+			this->球ToolStripMenuItem->Text = L"球";
+			this->球ToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::球ToolStripMenuItem_Click);
+			// 
+			// 立方体ToolStripMenuItem
+			// 
+			this->立方体ToolStripMenuItem->Name = L"立方体ToolStripMenuItem";
+			this->立方体ToolStripMenuItem->Size = System::Drawing::Size(152, 22);
+			this->立方体ToolStripMenuItem->Text = L"立方体";
+			this->立方体ToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::立方体ToolStripMenuItem_Click);
+			// 
+			// 円柱ToolStripMenuItem
+			// 
+			this->円柱ToolStripMenuItem->Name = L"円柱ToolStripMenuItem";
+			this->円柱ToolStripMenuItem->Size = System::Drawing::Size(152, 22);
+			this->円柱ToolStripMenuItem->Text = L"円柱";
+			this->円柱ToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::円柱ToolStripMenuItem_Click);
+			// 
+			// 円錐ToolStripMenuItem
+			// 
+			this->円錐ToolStripMenuItem->Name = L"円錐ToolStripMenuItem";
+			this->円錐ToolStripMenuItem->Size = System::Drawing::Size(152, 22);
+			this->円錐ToolStripMenuItem->Text = L"円錐";
+			this->円錐ToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::円錐ToolStripMenuItem_Click);
+			// 
+			// トーラスToolStripMenuItem
+			// 
+			this->トーラスToolStripMenuItem->Name = L"トーラスToolStripMenuItem";
+			this->トーラスToolStripMenuItem->Size = System::Drawing::Size(152, 22);
+			this->トーラスToolStripMenuItem->Text = L"トーラス";
+			this->トーラスToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::トーラスToolStripMenuItem_Click);
+			// 
+			// ティーポットToolStripMenuItem
+			// 
+			this->ティーポットToolStripMenuItem->Name = L"ティーポットToolStripMenuItem";
+			this->ティーポットToolStripMenuItem->Size = System::Drawing::Size(152, 22);
+			this->ティーポットToolStripMenuItem->Text = L"ティーポット";
+			this->ティーポットToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::ティーポットToolStripMenuItem_Click);
 			// 
 			// ウィンドウToolStripMenuItem
 			// 
@@ -366,6 +424,13 @@ namespace VirtualTouch {
 			this->pictureBox1->TabIndex = 1;
 			this->pictureBox1->TabStop = false;
 			// 
+			// 正八面体ToolStripMenuItem
+			// 
+			this->正八面体ToolStripMenuItem->Name = L"正八面体ToolStripMenuItem";
+			this->正八面体ToolStripMenuItem->Size = System::Drawing::Size(152, 22);
+			this->正八面体ToolStripMenuItem->Text = L"正八面体";
+			this->正八面体ToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::正八面体ToolStripMenuItem_Click);
+			// 
 			// MainForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 12);
@@ -404,10 +469,21 @@ namespace VirtualTouch {
 		System::Void スナップを保存ToolStripMenuItem1_Click(System::Object^  sender, System::EventArgs^  e);
 		//	コントロール->モード
 		System::Void 振動ONToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
+		System::Void デプスマップToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
+		//	コントロール->3Dモデル	
+		System::Void 球ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
+		System::Void 立方体ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
+		System::Void 円柱ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
+		System::Void 円錐ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
+		System::Void トーラスToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
+		System::Void 正八面体ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
+		System::Void ティーポットToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
 		//	設定
 		System::Void シリアルポートToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
 		System::Void serialPort1_DataReceived(System::Object^  sender, System::IO::Ports::SerialDataReceivedEventArgs^  e);
+		//	その他
 		System::Void setMotorState(void);
+		System::Void draw3DObject(int objNum);
 };
 }
 
@@ -425,3 +501,4 @@ extern cv::Mat	ZMap;			//	距離
 extern bool		serialPorrtIsSet;
 
 System::Void winShowImage(System::Windows::Forms::PictureBox^ picturebox, cv::Mat img);
+void lighting(void);
