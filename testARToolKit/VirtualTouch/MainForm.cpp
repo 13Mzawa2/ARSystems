@@ -4,8 +4,9 @@
 
 #define WINDOW_W	640
 #define WINDOW_H	480
-#define VIB_NUM		5
+#define VIB_NUM		10
 #define MODEL_SIZE	500.0
+#define CAP_NUM		0
 
 using namespace VirtualTouch;
 using namespace System::Runtime::InteropServices;
@@ -21,12 +22,18 @@ bool	serialPortIsSet = false;	//	シリアルポート用
 int		objectNum = 0;				//	描画する3Dモデルの番号
 unsigned char	motorState[2][VIB_NUM] = { {0x06}, {0x00} };
 
-static cv::Point vibrator[VIB_NUM]= {
-	cv::Point(380, 270),			//	親指
-	cv::Point(350, 220),			//	人差指
+static cv::Point vibrator[VIB_NUM] = {
+	cv::Point(350, 235),			//	親指
+	cv::Point(335, 210),			//	人差指
 	cv::Point(320, 200),			//	中指
-	cv::Point(290, 210),			//	薬指
-	cv::Point(260, 240)				//	小指
+	cv::Point(305, 205),			//	薬指
+	cv::Point(290, 220),			//	小指
+
+	cv::Point(330, 240),			//	人差指付根
+	cv::Point(310, 242),			//	薬指付根
+	cv::Point(335, 270),			//	親指付根
+	cv::Point(320, 280),			//	掌中央下
+	cv::Point(300, 250)				//	小指下
 };
 
 //=============================================================
@@ -180,7 +187,7 @@ System::Void MainForm::デプスマップToolStripMenuItem_Click(System::Object^  send
 //=============================================================
 System::Void MainForm::入力ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
 {
-	VideoCapture cap(1);
+	VideoCapture cap(CAP_NUM);
 	//	カメラの存在をチェック
 	if (!cap.isOpened())
 	{
@@ -287,7 +294,7 @@ System::Void MainForm::入力ToolStripMenuItem_Click(System::Object^  sender, Syst
 				char s[256];
 				sprintf_s(s, 20, "%.2f", depth);
 				putText(cvImg, s, cv::Point(10, 18 * (i + 1)), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 255, 255), 1, CV_AA);
-				circle(cvImg, vibrator[i], 8, Scalar(0, 0, 255), 2, CV_AA);
+				circle(cvImg, vibrator[i], 4, Scalar(0, 0, 255), 1, CV_AA);
 			}
 		}
 
