@@ -6,7 +6,7 @@
 #define WINDOW_H	480
 #define VIB_NUM		10
 #define MODEL_SIZE	500.0
-#define CAP_NUM		0
+#define CAP_NUM		1
 
 using namespace VirtualTouch;
 using namespace System::Runtime::InteropServices;
