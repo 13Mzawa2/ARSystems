@@ -482,7 +482,6 @@ namespace VirtualTouch {
 		System::Void シリアルポートToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e);
 		System::Void serialPort1_DataReceived(System::Object^  sender, System::IO::Ports::SerialDataReceivedEventArgs^  e);
 		//	その他
-		System::Void setMotorState(void);
 		System::Void draw3DObject(int objNum);
 };
 }
@@ -502,3 +501,4 @@ extern bool		serialPorrtIsSet;
 
 System::Void winShowImage(System::Windows::Forms::PictureBox^ picturebox, cv::Mat img);
 void lighting(void);
+System::Void setMotorState(Mat& zmap);
