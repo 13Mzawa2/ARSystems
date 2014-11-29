@@ -145,14 +145,15 @@ System::Void MainForm::serialPort1_DataReceived(System::Object^  sender, System:
 		}
 	}
 }
-System::Void MainForm::setMotorState(void)
+System::Void setMotorState(Mat& zmap)
 {
 	double refV, znear, zfar;
 	getClip(znear, zfar);
 	for (int i = 0; i < VIB_NUM; i++)
 	{
-		double z = - ZMap.at<float>(vibrator[i]);
+		double z = - zmap.at<float>(vibrator[i]);
 		refV = 170.0 - 170.0 / (zfar - znear)*(z - znear);		//	距離‐振動数一次変換式
+		//refV = 170.0 * (-500) / z;
 		refV = 0.0002*refV*refV - 0.0043*refV + 0.4719;								//	振動数‐電圧変換式
 		motorState[0][i] = (int)(refV / 0.08);
 		if (motorState[0][i] < 0x06) motorState[0][i] = 0x06;
@@ -222,11 +223,13 @@ System::Void MainForm::入力ToolStripMenuItem_Click(System::Object^  sender, Syst
 		// カメラ画像のバッファへの描画
 		argDrawMode2D();
 		argDispImage(arImg, 0, 0);
+		//depthMap = Mat(cv::Size(frame.rows, frame.cols), CV_32FC1, Scalar(1.0)).clone();
+		cvtColor(frame, depthMap, CV_BGR2GRAY);
 
 		int	markerNum;							//	検出されたマーカー数
 		// マーカの検出と認識
-		//		if (arDetectMarker(arImg, thresholdOtsu(frame), &markerInfo, &markerNum) < 0) break;
-		if (arDetectMarker(arImg, 30, &markerInfo, &markerNum) < 0) break;
+		if (arDetectMarker(arImg, thresholdOtsu(frame), &markerInfo, &markerNum) < 0) break;
+		//if (arDetectMarker(arImg, 30, &markerInfo, &markerNum) < 0) break;
 
 		// マーカの一致度の比較 最も一致度の高いマーカーがk番目に存在する
 		int k = -1;
@@ -253,13 +256,9 @@ System::Void MainForm::入力ToolStripMenuItem_Click(System::Object^  sender, Syst
 			{
 				// ライティング
 				lighting();
-
 				// 3Dオブジェクトの描画
 				draw3DObject(objectNum);
-
 				//	デプスマップ取得
-				cvtColor(frame, depthMap, CV_BGR2GRAY);
-				getClip(nearClip, farClip);
 				getDepthMap(depthMap);
 			}
 			arEndObjectRender();
@@ -274,15 +273,23 @@ System::Void MainForm::入力ToolStripMenuItem_Click(System::Object^  sender, Syst
 		else
 		{
 			isFirstDetect = false;
-			cvtColor(frame, depthMap, CV_BGR2GRAY);
-			depthMap.convertTo(depthMap, CV_32F);
-			depthMap = 1.0;
+			//	デプスマップ取得
+			arBeginObjectRender();
+			{
+				getDepthMap(depthMap);
+			}
+			arEndObjectRender();
 			readImageBuffer(cvImg);					//	OpenGLバッファからレンダリング後の画像を読み取る
 		}
 
 		//	距離情報をもとに振動子をセット
 		cvtDepth2Z(depthMap, ZMap);
-		setMotorState();
+		//Mat tempMap;
+		//Laplacian(ZMap, tempMap, CV_32F, 3);
+		//ZMap = abs(tempMap);
+		//GaussianBlur(ZMap, ZMap, cv::Size(11, 11), 10, 10);
+		//ZMap = 5000.0 - ZMap;
+		setMotorState(ZMap);
 
 		//	振動子位置の描画
 		if (振動子位置表示ToolStripMenuItem->Checked)
@@ -435,29 +442,29 @@ System::Void MainForm::draw3DObject(int objNum)
 	{
 	case 1:		//	球
 		glPushMatrix();											//	カレント変換行列を保存
-		glTranslatef(0.0, 0.0, -MODEL_SIZE / sqrt(CV_PI));		// マーカの上に載せるためにZ方向（マーカ上方）に20.0[mm]移動
+		glTranslatef(0.0, 0.0, MODEL_SIZE / sqrt(CV_PI));		// マーカの上に載せるためにZ方向（マーカ上方）に20.0[mm]移動
 		//glRotated(90.0, 1.0, 0.0, 0.0);
 		glutSolidSphere(MODEL_SIZE / sqrt(CV_PI), 20, 20);
 		glPopMatrix();											//	カレント変換行列を呼び出し
 		break;
 	case 2:		//	立方体
 		glPushMatrix();
-		glTranslatef(0.0, 0.0, -MODEL_SIZE / 2.0);
+		glTranslatef(0.0, 0.0, MODEL_SIZE / 2.0);
 		//glRotated(90.0, 1.0, 0.0, 0.0);
 		glutSolidCube(MODEL_SIZE);
 		glPopMatrix();
 		break;
 	case 3:		//	円柱
 		glPushMatrix();
-		glTranslatef(0.0, 0.0, -MODEL_SIZE / 2.0);
+		glTranslatef(0.0, 0.0, MODEL_SIZE / 2.0);
 		//glRotated(90.0, 1.0, 0.0, 0.0);
-		glutSolidCylinder(MODEL_SIZE / 2.0, MODEL_SIZE, 1, 20);
+		glutSolidCylinder(MODEL_SIZE / 2.0, MODEL_SIZE, 2, 20);
 		glPopMatrix();
 		break;
 	case 4:		//	円錐
 		glPushMatrix();
-		glRotated(-90.0, 1.0, 0.0, 0.0);
-		glTranslatef(0.0, MODEL_SIZE / sqrt(2.0), -MODEL_SIZE / sqrt(2.0));
+		//glRotated(-90.0, 1.0, 0.0, 0.0);
+		//glTranslatef(0.0, MODEL_SIZE / sqrt(2.0), MODEL_SIZE / sqrt(2.0));
 		glutSolidCone(MODEL_SIZE / sqrt(2.0), MODEL_SIZE * sqrt(2.0), 20, 20);
 		glPopMatrix();
 		break;
